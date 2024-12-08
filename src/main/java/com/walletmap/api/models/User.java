@@ -57,4 +57,9 @@ public class User implements Serializable {
     private String nom;
     private String email;
 
+    @Override
+    public String toString() {
+        return "User [id=" + id + ", nom=" + nom + ", email=" + email + "]";
+    }
+
 }
