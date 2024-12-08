@@ -28,4 +28,13 @@ public class UserService {
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
     }
+
+    public boolean emailExists(String email) {
+        return userRepository.findByEmail(email) != null;
+    }
+
+    public User findByEmail(String email) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findByEmail'");
+    }
 }

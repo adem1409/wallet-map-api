@@ -1,11 +1,16 @@
 package com.walletmap.api.controllers;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.walletmap.api.models.User;
 import com.walletmap.api.services.UserService;
@@ -15,39 +20,31 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/api/users")
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
     @Autowired
     private UserService userService;
 
     @GetMapping
-    public String get() {
-        return "test test";
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
     }
-
-    @GetMapping("/all")
-    public String getAllUsers() {
-        return userService.getAllUsers().toString();
-    }
-
-    // @PostMapping
-    // public String createUser(@RequestBody User user) {
-    // User entity;
-    // try {
-    // entity = userService.saveUser(user);
-
-    // } catch (Exception e) {
-    // return e.getMessage();
-    // }
-    // return user.toString();
-    // }
 
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody User user) {
+    public ResponseEntity<?> create(@RequestBody User user) {
         try {
-            User savedUser = userService.saveUser(user);
-            return ResponseEntity.ok(savedUser);
+            if (userService.emailExists(user.getEmail())) {
+                return new ResponseEntity<>(Map.of("message", "EmailAlreadyExists"), HttpStatus.BAD_REQUEST);
+            }
+            User newUser = new User();
+            newUser.setUsername(user.getUsername());
+            newUser.setEmail(user.getEmail());
+            newUser.setPassword(user.getPassword());
+            newUser.setAccessId(1);
+            User savedUser = userService.saveUser(newUser);
+            return new ResponseEntity<>(savedUser, HttpStatus.OK);
         } catch (Exception e) {
-            return ResponseEntity.ok(e.getMessage());
+            return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 

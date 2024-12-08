@@ -7,59 +7,32 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-// import lombok.AllArgsConstructor;
-// import lombok.Data;
-// import lombok.Getter;
-// import lombok.NoArgsConstructor;
-// import lombok.Setter;
+import lombok.Data;
 
 @Entity
+@Data
 public class User implements Serializable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String email;
+    private String password;
+    private String username;
+    private String picture;
+    private Number accessId;
 
     public User() {
         super();
     }
 
-    public User(Long id, String nom, String email) {
+    public User(Long id, String email, String password, String username, String picture, Number accessId) {
         super();
         this.id = id;
-        this.nom = nom;
         this.email = email;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getNom() {
-        return nom;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String nom;
-    private String email;
-
-    @Override
-    public String toString() {
-        return "User [id=" + id + ", nom=" + nom + ", email=" + email + "]";
+        this.password = password;
+        this.username = username;
+        this.picture = picture;
+        this.accessId = accessId;
     }
 
 }
