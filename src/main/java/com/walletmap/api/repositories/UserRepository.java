@@ -10,4 +10,6 @@ import com.walletmap.api.models.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     public Optional<User> findByEmail(String email);
+
+    public Optional<User> findById(Long id);
 }
