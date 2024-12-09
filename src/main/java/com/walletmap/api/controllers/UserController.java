@@ -17,6 +17,7 @@ import com.walletmap.api.services.UserService;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/users")
@@ -46,6 +47,13 @@ public class UserController {
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/test")
+    public String test() {
+        String path = System.getProperty("user.dir") + "/" + "test.txt";
+        System.out.println(path);
+        return new String();
     }
 
 }
