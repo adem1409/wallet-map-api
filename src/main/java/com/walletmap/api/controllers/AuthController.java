@@ -92,6 +92,7 @@ public class AuthController {
             // Fetch user by ID
             Optional<User> userOptional = userRepository.findById(Long.parseLong(userId));
             if (userOptional.isPresent()) {
+                userOptional.get().setPassword(null);
                 return ResponseEntity.ok(userOptional);
             } else {
                 return ResponseEntity.status(401).body("Invalid or expired token");
