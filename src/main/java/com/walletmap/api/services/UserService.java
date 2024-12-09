@@ -3,7 +3,9 @@ package com.walletmap.api.services;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.walletmap.api.models.User;
 import com.walletmap.api.repositories.UserRepository;
@@ -23,6 +25,28 @@ public class UserService {
 
     public void removeById(Long id) {
         userRepository.deleteById(id);
+    }
+
+    // Edit an existing user
+    public Optional<User> editUser(Long id, Map<String, String> updatedUser) {
+
+        Optional<User> existingUser = userRepository.findById(id);
+
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+
+            if (!updatedUser.get("password").equals(user.getPassword())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is incorrect.");
+            }
+            // Update fields
+            user.setUsername(updatedUser.get("username"));
+            user.setPassword(updatedUser.get("newPassword"));
+            // Add other fields to update as needed
+
+            return Optional.of(userRepository.save(user));
+        }
+
+        return Optional.empty();
     }
 
     public Optional<User> findById(Long id) {
