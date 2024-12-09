@@ -30,7 +30,10 @@ public class UserService {
     }
 
     public boolean emailExists(String email) {
-        return userRepository.findByEmail(email) != null;
+        System.out.println(email);
+        System.out.println(userRepository.findByEmail(email));
+        System.out.println(userRepository.findByEmail(email).isPresent());
+        return userRepository.findByEmail(email).isPresent();
     }
 
     public User findByEmail(String email) {

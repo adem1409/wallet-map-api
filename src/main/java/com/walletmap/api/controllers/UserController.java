@@ -37,6 +37,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<?> create(@RequestBody User user) {
         try {
+
             if (userService.emailExists(user.getEmail())) {
                 return new ResponseEntity<>(Map.of("message", "EmailAlreadyExists"), HttpStatus.BAD_REQUEST);
             }
