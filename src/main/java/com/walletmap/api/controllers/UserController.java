@@ -2,32 +2,29 @@ package com.walletmap.api.controllers;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import java.util.Optional;
 
 import com.walletmap.api.lib.AuthHelpers;
 import com.walletmap.api.lib.FileManager;
 import com.walletmap.api.models.User;
 import com.walletmap.api.services.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
-
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/api/users")
@@ -43,20 +40,25 @@ public class UserController {
 
     @PostMapping("/edit")
     public ResponseEntity<?> editUser(@RequestBody Map<String, String> updatedUser,
-            HttpServletRequestWrapper request) {
+            HttpServletRequest request) {
 
-        User currentUser = authHelpers.getAuthenticatedUser(request);
+        try {
 
-        if (currentUser == null) {
-            return ResponseEntity.status(401).body("Not authenticated");
-        }
+            User currentUser = authHelpers.getAuthenticatedUser(request);
 
-        Optional<User> editedUser = userService.editUser(currentUser.getId(), updatedUser);
+            if (currentUser == null) {
+                return ResponseEntity.status(401).body("Not authenticated");
+            }
 
-        if (editedUser.isPresent()) {
-            return ResponseEntity.ok(editedUser.get());
-        } else {
-            return ResponseEntity.notFound().build();
+            Optional<User> editedUser = userService.editUser(currentUser.getId(), updatedUser);
+
+            if (editedUser.isPresent()) {
+                return ResponseEntity.ok(editedUser.get());
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(Map.of("message", e.getMessage()));
         }
 
     }
@@ -89,7 +91,7 @@ public class UserController {
 
             return ResponseEntity.ok(Map.of("message", "Photo uploaded successfully", "filePath", uploadedFilePath));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("message", e.getMessage()));
+            return ResponseEntity.status(400).body(Map.of("message", e.getMessage()));
         }
     }
 

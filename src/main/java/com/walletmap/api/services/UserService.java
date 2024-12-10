@@ -28,7 +28,7 @@ public class UserService {
     }
 
     // Edit an existing user
-    public Optional<User> editUser(Long id, Map<String, String> updatedUser) {
+    public Optional<User> editUser(Long id, Map<String, String> updatedUser) throws Exception {
 
         Optional<User> existingUser = userRepository.findById(id);
 
@@ -36,8 +36,11 @@ public class UserService {
             User user = existingUser.get();
 
             if (!updatedUser.get("password").equals(user.getPassword())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is incorrect.");
+                throw new Exception("Password is incorrect.");
             }
+
+            if (true)
+                throw new Exception("Password is incorrect.");
             // Update fields
             user.setUsername(updatedUser.get("username"));
             user.setPassword(updatedUser.get("newPassword"));
