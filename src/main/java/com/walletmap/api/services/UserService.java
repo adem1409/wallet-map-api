@@ -39,8 +39,6 @@ public class UserService {
                 throw new Exception("Password is incorrect.");
             }
 
-            if (true)
-                throw new Exception("Password is incorrect.");
             // Update fields
             user.setUsername(updatedUser.get("username"));
             user.setPassword(updatedUser.get("newPassword"));
