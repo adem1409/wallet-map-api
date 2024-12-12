@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,10 +22,12 @@ import java.util.Optional;
 
 import com.walletmap.api.lib.AuthHelpers;
 import com.walletmap.api.lib.FileManager;
+import com.walletmap.api.lib.Helpers;
 import com.walletmap.api.models.User;
 import com.walletmap.api.services.UserService;
 
 import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -94,7 +98,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody User user) {
+    public ResponseEntity<?> create(@RequestBody User user, HttpServletResponse response) {
         try {
 
             if (userService.emailExists(user.getEmail())) {
@@ -105,7 +109,23 @@ public class UserController {
             newUser.setEmail(user.getEmail());
             newUser.setPassword(user.getPassword());
             newUser.setAccessId(1);
+            newUser.setPicture("/uploads/profile-pictures/avatar_placholder.png");
             User savedUser = userService.saveUser(newUser);
+
+            // Generate JWT token with user ID
+            String jwtToken = Helpers.generateJWT(savedUser.getId().toString());
+
+            // Create HTTP-only cookie with the token
+            ResponseCookie jwtCookie = ResponseCookie.from("auth-token", jwtToken)
+                    .httpOnly(true)
+                    .sameSite("None")
+                    .secure(true)
+                    .path("/")
+                    .build();
+
+            // Add the cookie to the response header
+            response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+
             return new ResponseEntity<>(savedUser, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.BAD_REQUEST);
