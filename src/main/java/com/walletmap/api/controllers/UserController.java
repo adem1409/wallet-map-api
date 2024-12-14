@@ -45,7 +45,7 @@ public class UserController {
     public ResponseEntity<?> editUser(@RequestBody Map<String, String> updatedUser,
             HttpServletRequestWrapper request) {
 
-        User currentUser = authHelpers.getAuthenticatedUser(request);
+        User currentUser = authHelpers.getAuthenticatedUser(request);   
 
         if (currentUser == null) {
             return ResponseEntity.status(401).body("Not authenticated");
