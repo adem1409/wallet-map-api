@@ -1,23 +1,23 @@
 package com.walletmap.api.config;
 
-import com.walletmap.api.models.User;
-import com.walletmap.api.repositories.ContactRepository;
-import com.walletmap.api.lib.Helpers;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.util.Optional;
+import com.walletmap.api.lib.Helpers;
+import com.walletmap.api.models.User;
+import com.walletmap.api.services.UserService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class UserInterceptor implements HandlerInterceptor {
 
     @Autowired
-    private ContactRepository userRepository;
+    private UserService userService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -39,7 +39,7 @@ public class UserInterceptor implements HandlerInterceptor {
                 String userId = Helpers.parseJWT(token);
 
                 // Fetch the user and store in the request attribute
-                Optional<User> userOptional = userRepository.findById(Long.parseLong(userId));
+                Optional<User> userOptional = userService.findById(Long.parseLong(userId));
                 if (userOptional.isPresent()) {
                     request.setAttribute("currentUser", userOptional);
                     System.out.println(userOptional);

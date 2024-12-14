@@ -25,7 +25,6 @@ import com.walletmap.api.models.User;
 import com.walletmap.api.services.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
@@ -44,6 +43,7 @@ public class UserController {
     public ResponseEntity<?> editUser(@RequestBody Map<String, String> updatedUser,
             HttpServletRequest request) throws Exception {
 
+        try {
             User currentUser = authHelpers.getAuthenticatedUser(request);
 
             if (currentUser == null) {

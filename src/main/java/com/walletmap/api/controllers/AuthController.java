@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.walletmap.api.lib.Helpers;
 import com.walletmap.api.models.User;
-import com.walletmap.api.repositories.ContactRepository;
 import com.walletmap.api.services.UserService;
 
 import jakarta.servlet.http.HttpServletResponse;
