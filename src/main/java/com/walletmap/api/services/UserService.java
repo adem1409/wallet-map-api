@@ -34,14 +34,14 @@ public class UserService {
 
         if (existingUser.isPresent()) {
             User user = existingUser.get();
-            String password = updatedUser.get("password") != null ? updatedUser.get("password") : "";
-            if (!password.equals(user.getPassword())) {
-                throw new Exception("Password is incorrect.");
-            }
+
+            // if (!updatedUser.get("password").equals(user.getPassword())) {
+            // throw new Exception("Password is incorrect.");
+            // }
 
             // Update fields
             user.setUsername(updatedUser.get("username"));
-            user.setPassword(updatedUser.get("newPassword"));
+            // user.setPassword(updatedUser.get("newPassword"));
             // Add other fields to update as needed
 
             return Optional.of(userRepository.save(user));

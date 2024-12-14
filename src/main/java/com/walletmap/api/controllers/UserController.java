@@ -44,20 +44,22 @@ public class UserController {
     public ResponseEntity<?> editUser(@RequestBody Map<String, String> updatedUser,
             HttpServletRequest request) throws Exception {
 
-        User currentUser = authHelpers.getAuthenticatedUser(request);
+            User currentUser = authHelpers.getAuthenticatedUser(request);
 
-        if (currentUser == null) {
-            return ResponseEntity.status(401).body("Not authenticated");
+            if (currentUser == null) {
+                return ResponseEntity.status(401).body("Not authenticated");
+            }
+
+            Optional<User> editedUser = userService.editUser(currentUser.getId(), updatedUser);
+
+            if (editedUser.isPresent()) {
+                return ResponseEntity.ok(editedUser.get());
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("message", e.getMessage()));
         }
-
-        Optional<User> editedUser = userService.editUser(currentUser.getId(), updatedUser);
-
-        if (editedUser.isPresent()) {
-            return ResponseEntity.ok(editedUser.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-
     }
 
     @Autowired
@@ -66,7 +68,7 @@ public class UserController {
     @PostMapping("/update-picture")
     public ResponseEntity<?> updatePicture(
             @RequestParam("picture") MultipartFile file,
-            HttpServletRequestWrapper request) {
+            HttpServletRequest request) {
         try {
 
             User currentUser = authHelpers.getAuthenticatedUser(request);
