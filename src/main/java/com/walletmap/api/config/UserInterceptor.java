@@ -1,7 +1,7 @@
 package com.walletmap.api.config;
 
 import com.walletmap.api.models.User;
-import com.walletmap.api.repositories.UserRepository;
+import com.walletmap.api.repositories.ContactRepository;
 import com.walletmap.api.lib.Helpers;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,7 +17,7 @@ import java.util.Optional;
 public class UserInterceptor implements HandlerInterceptor {
 
     @Autowired
-    private UserRepository userRepository;
+    private ContactRepository userRepository;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)

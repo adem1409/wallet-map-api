@@ -1,11 +1,11 @@
 package com.walletmap.api.services;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.walletmap.api.models.User;
 import com.walletmap.api.repositories.UserRepository;
@@ -34,8 +34,8 @@ public class UserService {
 
         if (existingUser.isPresent()) {
             User user = existingUser.get();
-
-            if (!updatedUser.get("password").equals(user.getPassword())) {
+            String password = updatedUser.get("password") != null ? updatedUser.get("password") : "";
+            if (!password.equals(user.getPassword())) {
                 throw new Exception("Password is incorrect.");
             }
 
@@ -61,8 +61,8 @@ public class UserService {
         return userRepository.findByEmail(email).isPresent();
     }
 
-    public User findByEmail(String email) {
+    public Optional<User> findByEmail(String email) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByEmail'");
+        return userRepository.findByEmail(email);
     }
 }

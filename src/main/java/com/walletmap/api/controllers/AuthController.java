@@ -17,7 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.walletmap.api.lib.Helpers;
 import com.walletmap.api.models.User;
-import com.walletmap.api.repositories.UserRepository;
+import com.walletmap.api.repositories.ContactRepository;
+import com.walletmap.api.services.UserService;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -27,7 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AuthController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     // Login endpoint
     @PostMapping("/login")
@@ -36,7 +37,7 @@ public class AuthController {
         String email = loginRequest.get("email");
         String password = loginRequest.get("password");
         // Check if email exists and password matches
-        Optional<User> userOptional = userRepository.findByEmail(email);
+        Optional<User> userOptional = userService.findByEmail(email);
         if (userOptional.isPresent() && userOptional.get().getPassword().equals(password)) {
             // Generate JWT token with user ID
             String jwtToken = Helpers.generateJWT(userOptional.get().getId().toString());
@@ -89,7 +90,7 @@ public class AuthController {
             System.out.println("User ID: " + userId);
 
             // Fetch user by ID
-            Optional<User> userOptional = userRepository.findById(Long.parseLong(userId));
+            Optional<User> userOptional = userService.findById(Long.parseLong(userId));
             if (userOptional.isPresent()) {
                 userOptional.get().setPassword(null);
                 return ResponseEntity.ok(userOptional);
