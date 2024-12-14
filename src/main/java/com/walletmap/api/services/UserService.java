@@ -1,11 +1,11 @@
 package com.walletmap.api.services;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.walletmap.api.models.User;
 import com.walletmap.api.repositories.UserRepository;
@@ -28,19 +28,20 @@ public class UserService {
     }
 
     // Edit an existing user
-    public Optional<User> editUser(Long id, Map<String, String> updatedUser) {
+    public Optional<User> editUser(Long id, Map<String, String> updatedUser) throws Exception {
 
         Optional<User> existingUser = userRepository.findById(id);
 
         if (existingUser.isPresent()) {
             User user = existingUser.get();
 
-            if (!updatedUser.get("password").equals(user.getPassword())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is incorrect.");
-            }
+            // if (!updatedUser.get("password").equals(user.getPassword())) {
+            // throw new Exception("Password is incorrect.");
+            // }
+
             // Update fields
             user.setUsername(updatedUser.get("username"));
-            user.setPassword(updatedUser.get("newPassword"));
+            // user.setPassword(updatedUser.get("newPassword"));
             // Add other fields to update as needed
 
             return Optional.of(userRepository.save(user));
@@ -60,8 +61,8 @@ public class UserService {
         return userRepository.findByEmail(email).isPresent();
     }
 
-    public User findByEmail(String email) {
+    public Optional<User> findByEmail(String email) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByEmail'");
+        return userRepository.findByEmail(email);
     }
 }

@@ -1,9 +1,10 @@
 package com.walletmap.api.lib;
 
-import com.walletmap.api.models.User;
-import com.walletmap.api.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.walletmap.api.models.User;
+import com.walletmap.api.repositories.UserRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 

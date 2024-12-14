@@ -2,32 +2,30 @@ package com.walletmap.api.controllers;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
-import java.util.Optional;
 
 import com.walletmap.api.lib.AuthHelpers;
 import com.walletmap.api.lib.FileManager;
+import com.walletmap.api.lib.Helpers;
 import com.walletmap.api.models.User;
 import com.walletmap.api.services.UserService;
 
-import jakarta.servlet.http.HttpServletRequestWrapper;
-
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/users")
@@ -43,22 +41,25 @@ public class UserController {
 
     @PostMapping("/edit")
     public ResponseEntity<?> editUser(@RequestBody Map<String, String> updatedUser,
-            HttpServletRequestWrapper request) {
+            HttpServletRequest request) throws Exception {
 
-        User currentUser = authHelpers.getAuthenticatedUser(request);   
+        try {
+            User currentUser = authHelpers.getAuthenticatedUser(request);
 
-        if (currentUser == null) {
-            return ResponseEntity.status(401).body("Not authenticated");
+            if (currentUser == null) {
+                return ResponseEntity.status(401).body("Not authenticated");
+            }
+
+            Optional<User> editedUser = userService.editUser(currentUser.getId(), updatedUser);
+
+            if (editedUser.isPresent()) {
+                return ResponseEntity.ok(editedUser.get());
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("message", e.getMessage()));
         }
-
-        Optional<User> editedUser = userService.editUser(currentUser.getId(), updatedUser);
-
-        if (editedUser.isPresent()) {
-            return ResponseEntity.ok(editedUser.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-
     }
 
     @Autowired
@@ -67,7 +68,7 @@ public class UserController {
     @PostMapping("/update-picture")
     public ResponseEntity<?> updatePicture(
             @RequestParam("picture") MultipartFile file,
-            HttpServletRequestWrapper request) {
+            HttpServletRequest request) {
         try {
 
             User currentUser = authHelpers.getAuthenticatedUser(request);
@@ -94,7 +95,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody User user) {
+    public ResponseEntity<?> create(@RequestBody User user, HttpServletResponse response) {
         try {
 
             if (userService.emailExists(user.getEmail())) {
@@ -105,7 +106,23 @@ public class UserController {
             newUser.setEmail(user.getEmail());
             newUser.setPassword(user.getPassword());
             newUser.setAccessId(1);
+            newUser.setPicture("/uploads/profile-pictures/avatar_placeholder.png");
             User savedUser = userService.saveUser(newUser);
+
+            // Generate JWT token with user ID
+            String jwtToken = Helpers.generateJWT(savedUser.getId().toString());
+
+            // Create HTTP-only cookie with the token
+            ResponseCookie jwtCookie = ResponseCookie.from("auth-token", jwtToken)
+                    .httpOnly(true)
+                    .sameSite("None")
+                    .secure(true)
+                    .path("/")
+                    .build();
+
+            // Add the cookie to the response header
+            response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+
             return new ResponseEntity<>(savedUser, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.BAD_REQUEST);
