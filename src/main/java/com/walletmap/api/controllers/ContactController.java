@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequestMapping("/api/contacts")
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class ContactController {
+
     @Autowired
     private ContactService contactService;
 
@@ -39,11 +41,21 @@ public class ContactController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Contact contact, HttpServletResponse response) {
+    public ResponseEntity<?> create(@RequestBody Contact contact, HttpServletResponse response,
+            HttpServletRequest request) {
         try {
 
+            User user = authHelpers.getAuthenticatedUser(request);
+
+            if (user == null) {
+                return new ResponseEntity<>(Map.of("message", "User not authenticated"), HttpStatus.UNAUTHORIZED);
+            }
+
             Contact newContact = new Contact();
+
             newContact.setName(contact.getName());
+            newContact.setUser(user);
+
             Contact savedContact = contactService.saveContact(newContact);
 
             return new ResponseEntity<>(savedContact, HttpStatus.OK);
@@ -53,11 +65,12 @@ public class ContactController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteContact(@RequestBody Long id, HttpServletRequest request) {
+    public ResponseEntity<?> deleteContact(@PathVariable Long id, HttpServletRequest request) {
 
         try {
             // Fetch the contact by ID
             Optional<Contact> contactOpt = contactService.findById(id);
+
             if (contactOpt.isEmpty()) {
                 return new ResponseEntity<>(Map.of("message", "Contact not found"), HttpStatus.NOT_FOUND);
             }
