@@ -24,6 +24,5 @@ public class Contact implements Serializable {
     private Long id;
 
     @Column
-    private String name; // Net balance of the ledger
-
+    private String name;
 }

@@ -21,4 +21,8 @@ public class ContactService {
         return contactRepository.save(contact);
     }
 
+    public Contact deleteContact(Long id) {
+        return contactRepository.save(contact);
+    }
+
 }
