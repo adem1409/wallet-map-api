@@ -2,6 +2,7 @@ package com.walletmap.api.controllers;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,8 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.walletmap.api.models.Contact;
+import com.walletmap.api.models.User;
 import com.walletmap.api.services.ContactService;
+import com.walletmap.api.lib.AuthHelpers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
@@ -25,6 +29,9 @@ import jakarta.servlet.http.HttpServletResponse;
 public class ContactController {
     @Autowired
     private ContactService contactService;
+
+    @Autowired
+    private AuthHelpers authHelpers;
 
     @GetMapping
     public List<Contact> getAllContacts() {
@@ -45,6 +52,35 @@ public class ContactController {
         }
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteContact(@RequestBody Long id, HttpServletRequest request) {
+
+        try {
+            // Fetch the contact by ID
+            Optional<Contact> contactOpt = contactService.findById(id);
+            if (contactOpt.isEmpty()) {
+                return new ResponseEntity<>(Map.of("message", "Contact not found"), HttpStatus.NOT_FOUND);
+            }
+
+            Contact contact = contactOpt.get();
+
+            // Get the authenticated user
+            User user = authHelpers.getAuthenticatedUser(request);
+
+            // Check if the authenticated user is the creator of the contact
+            if (!user.getId().equals(contact.getUser().getId())) {
+                return new ResponseEntity<>(Map.of("message", "Unauthorized to delete this contact"),
+                        HttpStatus.FORBIDDEN);
+            }
+
+            // Delete the contact
+            contactService.deleteContactById(id);
+            return new ResponseEntity<>(Map.of("message", "Contact deleted successfully"), HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+
+    }
 
 }

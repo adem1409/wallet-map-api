@@ -1,6 +1,7 @@
 package com.walletmap.api.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,8 +22,14 @@ public class ContactService {
         return contactRepository.save(contact);
     }
 
-    public Contact deleteContact(Long id) {
-        return contactRepository.save(contact);
+    // Find contact by ID
+    public Optional<Contact> findById(Long id) {
+        return contactRepository.findById(id);
+    }
+
+    // Delete contact
+    public void deleteContactById(Long id) {
+        contactRepository.deleteById(id);
     }
 
 }
