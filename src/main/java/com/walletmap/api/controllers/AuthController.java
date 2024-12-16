@@ -13,11 +13,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.walletmap.api.lib.Helpers;
 import com.walletmap.api.models.User;
-import com.walletmap.api.services.UserService;
+import com.walletmap.api.repositories.UserRepository;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -27,7 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AuthController {
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
     // Login endpoint
     @PostMapping("/login")
@@ -36,7 +37,7 @@ public class AuthController {
         String email = loginRequest.get("email");
         String password = loginRequest.get("password");
         // Check if email exists and password matches
-        Optional<User> userOptional = userService.findByEmail(email);
+        Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent() && userOptional.get().getPassword().equals(password)) {
             // Generate JWT token with user ID
             String jwtToken = Helpers.generateJWT(userOptional.get().getId().toString());
@@ -89,7 +90,7 @@ public class AuthController {
             System.out.println("User ID: " + userId);
 
             // Fetch user by ID
-            Optional<User> userOptional = userService.findById(Long.parseLong(userId));
+            Optional<User> userOptional = userRepository.findById(Long.parseLong(userId));
             if (userOptional.isPresent()) {
                 userOptional.get().setPassword(null);
                 return ResponseEntity.ok(userOptional);
