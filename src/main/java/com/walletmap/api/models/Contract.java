@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "contracts")
 @Data
@@ -21,20 +23,23 @@ public class Contract implements Serializable {
 
     // Reference to User (side A)
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "side_a", referencedColumnName = "id")
     private User sideA;
 
     // Reference to Contact (side B Local)
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "side_b_local", referencedColumnName = "id")
     private Contact sideBLocal;
 
     // Reference to User (side B Shared)
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "side_b_shared", referencedColumnName = "id")
     private User sideBShared;
 
-    @Column(name = "creation_date")
+    private String name;
     private LocalDate creationDate; // Ledger creation date
     private String currency; // Currency for the ledger (ISO 4217 code)
     private Double netBalance; // Net balance of the ledger
