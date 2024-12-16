@@ -36,16 +36,8 @@ public class Contract implements Serializable {
 
     @Column(name = "creation_date")
     private LocalDate creationDate; // Ledger creation date
-
-    @Column
     private String currency; // Currency for the ledger (ISO 4217 code)
-
-    @Column
     private Double netBalance; // Net balance of the ledger
-
-    @Column
     private String status; // Status of the ledger (e.g., "Active", "Completed", "Cancelled")
-
-    @Column
     private boolean isShared; // Indicates if the ledger is shared or local
 }
