@@ -39,6 +39,10 @@ public class Transaction implements Serializable {
     @JoinColumn(name = "creator_id", referencedColumnName = "id")
     private User creator;
 
+    @ManyToOne
+    @JoinColumn(name = "contract_id", referencedColumnName = "id")
+    private Contract contract;
+
     // Nested enum for status
     public static enum Status {
         PENDING,
