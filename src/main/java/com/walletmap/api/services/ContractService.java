@@ -19,7 +19,6 @@ public class ContractService {
     }
 
     public Contract save(Contract contract) {
-        System.out.println(contract);
         return contractRepository.save(contract);
     }
 
@@ -31,6 +30,10 @@ public class ContractService {
     // Delete contact
     public void deleteById(Long id) {
         contractRepository.deleteById(id);
+    }
+
+    public void deleteBySideBSharedId(Long userId) {
+        contractRepository.deleteBySideBSharedId(userId);
     }
 
 }

@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "contracts")
@@ -34,8 +36,8 @@ public class Contract implements Serializable {
     private Contact sideBLocal;
 
     // Reference to User (side B Shared)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonManagedReference
     @JoinColumn(name = "side_b_shared", referencedColumnName = "id")
     private User sideBShared;
 
