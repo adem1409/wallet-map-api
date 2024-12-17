@@ -17,7 +17,9 @@ public class TestController {
 
     @RequestMapping("/test")
     public String test() {
-        contractService.deleteBySideBSharedId(Long.valueOf(25));
+        contractService.deleteBySideBSharedId(Long.valueOf(2));
+        contractService.deleteBySideBSharedId(Long.valueOf(3));
+        contractService.deleteBySideBSharedId(Long.valueOf(4));
         return "Test";
     }
 

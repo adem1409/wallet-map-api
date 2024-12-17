@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -37,9 +39,13 @@ public class Contract implements Serializable {
 
     // Reference to User (side B Shared)
     @ManyToOne(fetch = FetchType.EAGER)
-    @JsonManagedReference
+    // @JsonManagedReference
+    @JsonIgnore
     @JoinColumn(name = "side_b_shared", referencedColumnName = "id")
     private User sideBShared;
+
+    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Transaction> transactions = new ArrayList<>();
 
     private String name;
     private LocalDate creationDate; // Ledger creation date
