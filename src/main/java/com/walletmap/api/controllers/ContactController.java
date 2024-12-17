@@ -62,7 +62,7 @@ public class ContactController {
             newContact.setName(contact.getName());
             newContact.setUser(user);
 
-            Contact savedContact = contactService.saveContact(newContact);
+            Contact savedContact = contactService.save(newContact);
 
             return new ResponseEntity<>(savedContact, HttpStatus.OK);
         } catch (Exception e) {

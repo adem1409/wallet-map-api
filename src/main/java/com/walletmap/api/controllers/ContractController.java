@@ -33,6 +33,8 @@ import com.walletmap.api.lib.Helpers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Data;
+
 import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
@@ -71,8 +73,18 @@ public class ContractController {
         }
     }
 
+    @Data
+    public static class CreateContractRequest {
+        private String contractName;
+        private String currency;
+        private boolean isShared;
+        private Long user;
+        private Long contact;
+        private String contactName;
+    }
+
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Map<String, String> body, HttpServletResponse response,
+    public ResponseEntity<?> create(@RequestBody CreateContractRequest body, HttpServletResponse response,
             HttpServletRequest request) {
         try {
 
@@ -82,22 +94,28 @@ public class ContractController {
                 return new ResponseEntity<>(Map.of("message", "User not authenticated"), HttpStatus.UNAUTHORIZED);
             }
 
-            boolean isShared = body.get("isShared").equals("true");
-
             Contract newContract = new Contract();
-            newContract.setName(body.get("contractName"));
-            newContract.setCurrency(body.get("currency"));
-            newContract.setShared(isShared);
+            newContract.setName(body.getContactName());
+            newContract.setCurrency(body.getCurrency());
+            newContract.setShared(body.isShared);
             newContract.setNetBalance(0.0);
             newContract.setCreationDate(LocalDate.now());
             newContract.setSideA(user);
 
-            if (isShared) {
-                Optional<User> userOptional = userService.findById(Long.parseLong(body.get("user")));
+            if (body.isShared) {
+                Optional<User> userOptional = userService.findById(body.getUser());
                 newContract.setSideBShared(userOptional.get());
             } else {
-                Optional<Contact> contactOptional = contactService.findById(Long.parseLong(body.get("contact")));
-                newContract.setSideBLocal(contactOptional.get());
+                if (body.getContactName() == null) {
+                    Optional<Contact> contactOptional = contactService.findById(body.getContact());
+                    newContract.setSideBLocal(contactOptional.get());
+                } else {
+                    Contact newContact = new Contact();
+                    newContact.setName(body.getContactName());
+                    newContact.setUser(user);
+                    Contact savedContact = contactService.save(newContact);
+                    newContract.setSideBLocal(savedContact);
+                }
 
             }
 
