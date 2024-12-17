@@ -1,5 +1,6 @@
 package com.walletmap.api.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,7 +10,9 @@ import com.walletmap.api.models.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    public Optional<User> findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
-    public Optional<User> findById(Long id);
+    Optional<User> findById(Long id);
+
+    List<User> findByEmailContainingIgnoreCaseOrUsernameContainingIgnoreCase(String email, String username);
 }

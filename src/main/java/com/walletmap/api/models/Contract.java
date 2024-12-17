@@ -26,22 +26,22 @@ public class Contract implements Serializable {
     private Long id;
 
     // Reference to User (side A)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "side_a", referencedColumnName = "id")
+    @JsonManagedReference
     private User sideA;
 
     // Reference to Contact (side B Local)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonManagedReference
     @JoinColumn(name = "side_b_local", referencedColumnName = "id")
     private Contact sideBLocal;
 
     // Reference to User (side B Shared)
     @ManyToOne(fetch = FetchType.EAGER)
-    // @JsonManagedReference
-    @JsonIgnore
     @JoinColumn(name = "side_b_shared", referencedColumnName = "id")
+    @JsonManagedReference
+    // @JsonIgnore
     private User sideBShared;
 
     @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true)

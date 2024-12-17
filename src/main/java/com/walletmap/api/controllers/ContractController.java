@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.walletmap.api.models.Contact;
 import com.walletmap.api.models.Contract;
 import com.walletmap.api.models.Transaction;
 import com.walletmap.api.models.Contract;
@@ -26,6 +29,7 @@ import com.walletmap.api.services.ContractService;
 import com.walletmap.api.services.TransactionService;
 import com.walletmap.api.services.UserService;
 import com.walletmap.api.lib.AuthHelpers;
+import com.walletmap.api.lib.Helpers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,6 +44,9 @@ public class ContractController {
     private ContractService contractService;
 
     @Autowired
+    private ContactService contactService;
+
+    @Autowired
     private UserService userService;
 
     @Autowired
@@ -49,76 +56,19 @@ public class ContractController {
     private AuthHelpers authHelpers;
 
     @GetMapping
-    public List<Contract> getAllContracts() {
-        return contractService.getAll();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getContract(@PathVariable Long id, HttpServletRequest request) {
+    public ResponseEntity<?> getUserContracts(HttpServletRequest request) {
         try {
-
             User user = authHelpers.getAuthenticatedUser(request);
 
             if (user == null) {
                 return new ResponseEntity<>(Map.of("message", "User not authenticated"), HttpStatus.UNAUTHORIZED);
             }
 
-            Optional<Contract> contractOptional = contractService.findById(id);
-
-            if (contractOptional.isEmpty()) {
-                return new ResponseEntity<>(Map.of("message", "Contract not found"), HttpStatus.NOT_FOUND);
-            }
-
-            Contract contract = contractOptional.get();
-
-            if (user.getId().equals(contract.getSideA().getId()) ||
-                    user.getId().equals(contract.getSideBShared().getId())) {
-                return new ResponseEntity<>(contract, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(Map.of("message", "Contract not found"), HttpStatus.NOT_FOUND);
-            }
-
+            List<Contract> contracts = contractService.getBySideAId(user.getId());
+            return new ResponseEntity<>(contracts, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.BAD_REQUEST);
         }
-    }
-
-    @GetMapping("/{id}/transactions")
-    public ResponseEntity<?> getContractTransactions(@PathVariable Long id, HttpServletRequest request) {
-        try {
-
-            User user = authHelpers.getAuthenticatedUser(request);
-
-            if (user == null) {
-                return new ResponseEntity<>(Map.of("message", "User not authenticated"), HttpStatus.UNAUTHORIZED);
-            }
-
-            Optional<Contract> contractOptional = contractService.findById(id);
-
-            if (contractOptional.isEmpty()) {
-                return new ResponseEntity<>(Map.of("message", "Contract not found"), HttpStatus.NOT_FOUND);
-            }
-
-            Contract contract = contractOptional.get();
-
-            if (user.getId().equals(contract.getSideA().getId()) ||
-                    user.getId().equals(contract.getSideBShared().getId())) {
-
-                List<Transaction> transactions = transactionService.getTransactionsByContractId(id);
-
-                if (transactions.isEmpty()) {
-                    return new ResponseEntity<>(Map.of("message", "No transactions found"), HttpStatus.NOT_FOUND);
-                }
-
-                return new ResponseEntity<>(transactions, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(Map.of("message", "Contract not found"), HttpStatus.NOT_FOUND);
-            }
-
-        } catch (Exception e) {
-            return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.BAD_REQUEST);
-        }
-
     }
 
     @PostMapping
@@ -132,23 +82,51 @@ public class ContractController {
                 return new ResponseEntity<>(Map.of("message", "User not authenticated"), HttpStatus.UNAUTHORIZED);
             }
 
-            System.out.println("currency -------------- " + body.toString());
-            // if (true)
-            // throw new Exception("Just testing");
+            boolean isShared = body.get("isShared").equals("true");
 
             Contract newContract = new Contract();
             newContract.setName(body.get("contractName"));
             newContract.setCurrency(body.get("currency"));
-            newContract.setShared(body.get("isShared").equals("true"));
+            newContract.setShared(isShared);
+            newContract.setNetBalance(0.0);
             newContract.setCreationDate(LocalDate.now());
             newContract.setSideA(user);
 
-            Optional<User> userOptional = userService.findById(Long.parseLong(body.get("user")));
-            newContract.setSideBShared(userOptional.get());
+            if (isShared) {
+                Optional<User> userOptional = userService.findById(Long.parseLong(body.get("user")));
+                newContract.setSideBShared(userOptional.get());
+            } else {
+                Optional<Contact> contactOptional = contactService.findById(Long.parseLong(body.get("contact")));
+                newContract.setSideBLocal(contactOptional.get());
+
+            }
 
             Contract savedContract = contractService.save(newContract);
 
             return new ResponseEntity<>(savedContract, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getContract(@PathVariable Long id, HttpServletRequest request) {
+        try {
+            User user = authHelpers.getAuthenticatedUser(request);
+
+            if (user == null) {
+                return new ResponseEntity<>(Map.of("message", "User not authenticated"), HttpStatus.UNAUTHORIZED);
+            }
+
+            Optional<Contract> contract = contractService.findById(id);
+
+            if (contract.isPresent()) {
+                Contract c = contract.get();
+                c.getSideBShared();
+                return new ResponseEntity<>(contract.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(Map.of("message", "Contract not found"), HttpStatus.NOT_FOUND);
+            }
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.BAD_REQUEST);
         }

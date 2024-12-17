@@ -21,11 +21,15 @@ import org.springframework.web.multipart.MultipartFile;
 import com.walletmap.api.lib.AuthHelpers;
 import com.walletmap.api.lib.FileManager;
 import com.walletmap.api.lib.Helpers;
+import com.walletmap.api.models.Contract;
 import com.walletmap.api.models.User;
 import com.walletmap.api.services.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @RestController
 @RequestMapping("/api/users")
@@ -35,8 +39,9 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<List<User>> getUsers(@RequestParam(required = false) String search) {
+        List<User> users = userService.getAll(search);
+        return ResponseEntity.ok(users);
     }
 
     @PostMapping("/edit")
@@ -94,8 +99,16 @@ public class UserController {
         }
     }
 
+    @Data
+    public static class CreateUserRequest {
+        private String email;
+        private String password;
+        private String username;
+        private Number accessId;
+    }
+
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody User user, HttpServletResponse response) {
+    public ResponseEntity<?> create(@RequestBody CreateUserRequest user, HttpServletResponse response) {
         try {
 
             if (userService.emailExists(user.getEmail())) {

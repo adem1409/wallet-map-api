@@ -15,7 +15,10 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public List<User> getAllUsers() {
+    public List<User> getAll(String search) {
+        if (search != null && !search.isBlank()) {
+            return userRepository.findByEmailContainingIgnoreCaseOrUsernameContainingIgnoreCase(search, search);
+        }
         return userRepository.findAll();
     }
 

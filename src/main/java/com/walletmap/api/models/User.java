@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,15 +24,19 @@ public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
     private String email;
     private String password;
     private String username;
     private String picture;
     private Number accessId;
 
+    @OneToMany(mappedBy = "sideA")
+    @JsonBackReference
+    // @JsonIgnore
+    private List<Contract> contractsA;
+
     @OneToMany(mappedBy = "sideBShared")
     @JsonBackReference
-    private List<Contract> contracts;
-
+    // @JsonIgnore
+    private List<Contract> contractsB;
 }

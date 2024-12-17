@@ -23,6 +23,7 @@ import com.walletmap.api.lib.AuthHelpers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Data;
 
 @RestController
 @RequestMapping("/api/contacts")
@@ -40,8 +41,13 @@ public class ContactController {
         return contactService.getAllContacts();
     }
 
+    @Data
+    public static class CreateRequest {
+        private String name;
+    }
+
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Contact contact, HttpServletResponse response,
+    public ResponseEntity<?> create(@RequestBody CreateRequest contact, HttpServletResponse response,
             HttpServletRequest request) {
         try {
 

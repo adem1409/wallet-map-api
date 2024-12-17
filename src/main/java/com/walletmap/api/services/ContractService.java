@@ -36,4 +36,8 @@ public class ContractService {
         contractRepository.deleteBySideBSharedId(userId);
     }
 
+    public List<Contract> getBySideAId(Long userId) {
+        return contractRepository.getBySideAId(userId);
+    }
+
 }
