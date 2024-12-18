@@ -12,14 +12,18 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.walletmap.api.models.Contact;
 import com.walletmap.api.models.User;
 import com.walletmap.api.services.ContactService;
 import com.walletmap.api.lib.AuthHelpers;
+import com.walletmap.api.lib.FileManager;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -61,12 +65,57 @@ public class ContactController {
 
             newContact.setName(contact.getName());
             newContact.setUser(user);
+            newContact.setPicture("/uploads/contact-pictures/avatar_placeholder.png");
 
             Contact savedContact = contactService.save(newContact);
 
             return new ResponseEntity<>(savedContact, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/update-picture/{id}")
+    public ResponseEntity<?> updatePicture(
+            @RequestParam("picture") MultipartFile file,
+            @PathVariable Long id,
+            HttpServletRequest request) {
+        try {
+
+            User currentUser = authHelpers.getAuthenticatedUser(request);
+
+            if (currentUser == null) {
+                return ResponseEntity.status(401).body("Not authenticated");
+            }
+
+            Optional<Contact> optionalContact = contactService.findById(id);
+
+            if (optionalContact.isEmpty()) {
+                return ResponseEntity.status(404).body("Contact Not Found");
+            }
+
+            Contact currentContact = optionalContact.get();
+
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body("File is empty");
+            }
+
+            String uploadDir = "/uploads/contact-pictures/";
+
+            // Use FilesManager to upload the file
+            String uploadedFilePath = FileManager.uploadFile(file, uploadDir);
+            System.out.println("--------------- uploadedFilePath");
+            System.out.println(uploadedFilePath);
+
+            // Update the contact's picture field
+            currentContact.setPicture(uploadedFilePath);
+            contactService.save(currentContact);
+
+            return ResponseEntity.ok(Map.of("message", "Photo uploaded successfully", "filePath", uploadedFilePath));
+        } catch (
+
+        Exception e) {
+            return ResponseEntity.status(500).body(Map.of("message", e.getMessage()));
         }
     }
 
