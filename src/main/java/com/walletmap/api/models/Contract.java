@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class Contract implements Serializable {
     private List<Transaction> transactions = new ArrayList<>();
 
     private String name;
-    private LocalDate creationDate; // Ledger creation date
+    private LocalDateTime createdAt = LocalDateTime.now();
     private String currency; // Currency for the ledger (ISO 4217 code)
     private Double netBalance; // Net balance of the ledger
     private String status; // Status of the ledger (e.g., "Active", "Completed", "Cancelled")

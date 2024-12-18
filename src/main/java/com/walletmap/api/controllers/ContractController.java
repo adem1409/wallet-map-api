@@ -1,6 +1,7 @@
 package com.walletmap.api.controllers;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -77,7 +78,7 @@ public class ContractController {
     public static class CreateContractRequest {
         private String contractName;
         private String currency;
-        private boolean isShared;
+        public boolean isShared;
         private Long user;
         private Long contact;
         private String contactName;
@@ -86,6 +87,7 @@ public class ContractController {
     @PostMapping
     public ResponseEntity<?> create(@RequestBody CreateContractRequest body, HttpServletResponse response,
             HttpServletRequest request) {
+        System.out.println(body);
         try {
 
             User user = authHelpers.getAuthenticatedUser(request);
@@ -95,18 +97,17 @@ public class ContractController {
             }
 
             Contract newContract = new Contract();
-            newContract.setName(body.getContactName());
+            newContract.setName(body.getContractName());
             newContract.setCurrency(body.getCurrency());
             newContract.setShared(body.isShared);
             newContract.setNetBalance(0.0);
-            newContract.setCreationDate(LocalDate.now());
             newContract.setSideA(user);
 
             if (body.isShared) {
                 Optional<User> userOptional = userService.findById(body.getUser());
                 newContract.setSideBShared(userOptional.get());
             } else {
-                if (body.getContactName() == null) {
+                if (body.getContactName().isEmpty()) {
                     Optional<Contact> contactOptional = contactService.findById(body.getContact());
                     newContract.setSideBLocal(contactOptional.get());
                 } else {
