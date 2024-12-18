@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -139,6 +140,38 @@ public class ContractController {
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteContract(@PathVariable Long id, HttpServletRequest request) {
+
+        try {
+            // Fetch the contract by ID
+            Optional<Contract> contractOpt = contractService.findById(id);
+
+            if (contractOpt.isEmpty()) {
+                return new ResponseEntity<>(Map.of("message", "Contract not found"), HttpStatus.NOT_FOUND);
+            }
+
+            Contract contract = contractOpt.get();
+
+            // Get the authenticated user
+            User user = authHelpers.getAuthenticatedUser(request);
+
+            // Check if the authenticated user is the creator of the contract
+            if (!user.getId().equals(contract.getSideA().getId())) {
+                return new ResponseEntity<>(Map.of("message", "Unauthorized to delete this contract"),
+                        HttpStatus.FORBIDDEN);
+            }
+
+            // Delete the contract
+            contractService.deleteById(id);
+            return new ResponseEntity<>(Map.of("message", "Contract deleted successfully"), HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+
     }
 
 }
