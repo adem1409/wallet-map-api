@@ -21,15 +21,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.walletmap.api.lib.AuthHelpers;
 import com.walletmap.api.lib.FileManager;
 import com.walletmap.api.lib.Helpers;
-import com.walletmap.api.models.Contract;
 import com.walletmap.api.models.User;
 import com.walletmap.api.services.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @RestController
 @RequestMapping("/api/users")

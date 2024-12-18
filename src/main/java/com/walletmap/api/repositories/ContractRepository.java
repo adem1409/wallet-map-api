@@ -17,4 +17,6 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
     @Transactional
     List<Contract> getBySideAId(Long userId);
 
+    List<Contract> findBySideAIdOrderByCreatedAtDesc(Long sideAId);
+
 }

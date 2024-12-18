@@ -37,7 +37,7 @@ public class ContractService {
     }
 
     public List<Contract> getBySideAId(Long userId) {
-        return contractRepository.getBySideAId(userId);
+        return contractRepository.findBySideAIdOrderByCreatedAtDesc(userId);
     }
 
 }
