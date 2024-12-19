@@ -17,4 +17,8 @@ public class TransactionService {
     public List<Transaction> getTransactionsByContractId(Long contractId) {
         return transactionRepository.findByContractId(contractId);
     }
+
+    public Transaction save(Transaction transaction) {
+        return transactionRepository.save(transaction);
+    }
 }
