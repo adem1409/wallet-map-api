@@ -32,9 +32,6 @@ public class Contact implements Serializable {
     private String name;
     private String picture = "/uploads/contacts/avatar.png";
 
-    @Column
-    private String picture;
-
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
