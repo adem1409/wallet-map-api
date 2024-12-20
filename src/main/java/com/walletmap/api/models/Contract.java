@@ -59,7 +59,7 @@ public class Contract implements Serializable {
     private String name;
     private LocalDateTime createdAt = LocalDateTime.now();
     private String currency; // Currency for the ledger (ISO 4217 code)
-    private Double netBalance; // Net balance of the ledger
+    private Double netBalance = 0.0; // Net balance of the ledger
     private String status; // Status of the ledger (e.g., "Active", "Completed", "Cancelled")
     private boolean isShared; // Indicates if the ledger is shared or local
 }

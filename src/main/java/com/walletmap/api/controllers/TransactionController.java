@@ -90,6 +90,10 @@ public class TransactionController {
 
             Transaction transaction = transactionService.save(newTransaction);
 
+            contract.setNetBalance(contract.getNetBalance() + body.getAmount());
+
+            contractService.save(contract);
+
             return new ResponseEntity<>(transaction, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.BAD_REQUEST);
