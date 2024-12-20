@@ -15,6 +15,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     List<Transaction> findByContractIdOrderByCreatedAtDesc(Long contractId);
 
+    Long countByContractId(Long contractId);
+
     @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.contract.id = :contractId")
     Double findTotalAmountByContractId(@Param("contractId") Long contractId);
 

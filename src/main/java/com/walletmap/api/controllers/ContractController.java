@@ -28,6 +28,7 @@ import com.walletmap.api.services.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @RestController
@@ -120,6 +121,13 @@ public class ContractController {
         }
     }
 
+    @Data
+    @AllArgsConstructor
+    public class ContractResponse {
+        private Contract contract;
+        private Long nbTransactions;
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getContract(@PathVariable Long id, HttpServletRequest request) {
         try {
@@ -133,12 +141,16 @@ public class ContractController {
 
             if (contract.isPresent()) {
                 Contract c = contract.get();
-                c.getSideBShared();
-                return new ResponseEntity<>(contract.get(), HttpStatus.OK);
+
+                Long nbTransactions = transactionService.countByContractId(c.getId());
+
+                ContractResponse response = new ContractResponse(c, nbTransactions);
+                return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(Map.of("message", "Contract not found"), HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }

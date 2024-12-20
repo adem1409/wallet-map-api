@@ -18,6 +18,10 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
+    public Long countByContractId(Long contractId) {
+        return transactionRepository.countByContractId(contractId);
+    }
+
     public List<Transaction> findByContractId(Long contractId) {
         return transactionRepository.findByContractIdOrderByCreatedAtDesc(contractId);
     }

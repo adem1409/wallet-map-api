@@ -62,4 +62,17 @@ public class Contract implements Serializable {
     private Double netBalance = 0.0; // Net balance of the ledger
     private String status; // Status of the ledger (e.g., "Active", "Completed", "Cancelled")
     private boolean isShared; // Indicates if the ledger is shared or local
+
+    public Contract(Contract contract) {
+        this.id = contract.getId();
+        this.sideA = contract.getSideA();
+        this.sideBLocal = contract.getSideBLocal();
+        this.sideBShared = contract.getSideBShared();
+        this.name = contract.getName();
+        this.createdAt = contract.getCreatedAt();
+        this.currency = contract.getCurrency();
+        this.netBalance = contract.getNetBalance();
+        this.status = contract.getStatus();
+        this.isShared = contract.isShared();
+    }
 }
