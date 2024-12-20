@@ -2,6 +2,8 @@ package com.walletmap.api.models;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -28,8 +30,9 @@ public class Transaction implements Serializable {
     private Long id;
 
     private String label;
-    private Double amount;
-    private LocalDate creationDate;
+    private Double amount = 0.0;
+    private LocalDateTime date;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
