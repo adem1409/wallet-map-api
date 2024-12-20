@@ -29,8 +29,8 @@ public class Contact implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
     private String name;
+    private String picture = "/uploads/contacts/avatar.png";
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
