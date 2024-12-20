@@ -30,7 +30,7 @@ public class Transaction implements Serializable {
     private Long id;
 
     private String label;
-    private Double amount;
+    private Double amount = 0.0;
     private LocalDateTime date;
     private LocalDateTime createdAt = LocalDateTime.now();
 

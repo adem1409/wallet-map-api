@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.walletmap.api.lib.AuthHelpers;
 import com.walletmap.api.models.Contact;
 import com.walletmap.api.models.Contract;
+import com.walletmap.api.models.Transaction;
 import com.walletmap.api.models.User;
 import com.walletmap.api.services.ContactService;
 import com.walletmap.api.services.ContractService;
@@ -137,6 +138,28 @@ public class ContractController {
             } else {
                 return new ResponseEntity<>(Map.of("message", "Contract not found"), HttpStatus.NOT_FOUND);
             }
+        } catch (Exception e) {
+            return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/{id}/transactions")
+    public ResponseEntity<?> getTransactions(@PathVariable Long id, HttpServletRequest request) {
+        try {
+            User user = authHelpers.getAuthenticatedUser(request);
+
+            if (user == null) {
+                return new ResponseEntity<>(Map.of("message", "User not authenticated"), HttpStatus.UNAUTHORIZED);
+            }
+
+            Optional<Contract> contract = contractService.findById(id);
+            if (contract.isEmpty()) {
+                return new ResponseEntity<>(Map.of("message", "Contract not found"), HttpStatus.NOT_FOUND);
+            }
+
+            Contract c = contract.get();
+            List<Transaction> transactions = transactionService.findByContractId(c.getId());
+            return new ResponseEntity<>(transactions, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.BAD_REQUEST);
         }

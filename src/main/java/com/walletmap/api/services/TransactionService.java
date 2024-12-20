@@ -14,11 +14,12 @@ public class TransactionService {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    public List<Transaction> getTransactionsByContractId(Long contractId) {
-        return transactionRepository.findByContractId(contractId);
-    }
-
     public Transaction save(Transaction transaction) {
         return transactionRepository.save(transaction);
     }
+
+    public List<Transaction> findByContractId(Long contractId) {
+        return transactionRepository.findByContractIdOrderByCreatedAtDesc(contractId);
+    }
+
 }
